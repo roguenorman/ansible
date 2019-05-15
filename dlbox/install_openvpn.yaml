@@ -1,0 +1,10 @@
+--- #install openvpn
+- hosts: localhost
+  become: yes
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: install openvpn package
+    apt:
+      package: openvpn
+      state: present

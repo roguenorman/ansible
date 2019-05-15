@@ -1,0 +1,17 @@
+[Unit]
+Description={{ service_desc }}
+After=network.target
+
+
+[Service]
+Type=simple
+User={{ user }}
+Group={{ group }}
+ExecStart={{ execstart }}
+ExecStop={{ execstop }}
+Restart=always
+RestartSec=5
+SyslogIdentifier={{ syslog_id }}
+
+[Install]
+WantedBy=multi-user.target

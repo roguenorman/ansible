@@ -1,0 +1,55 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  gather_facts: no
+  vars_files: vars.yaml
+  tasks:
+  - name: install utserver dependencies
+    apt:
+      package: ['libssl1.0.0', 'libssl-dev']
+      state: present
+    ignore_errors: yes
+  - name: add utorrent group
+    group:
+      name: utorrent
+      system: yes
+  - name: add utorrent user
+    user: 
+      name: utorrent
+      group: utorrent
+      append: yes
+      system: yes
+      create_home: no
+  - name: download utserver tar
+    get_url: 
+      url: http://download.ap.bittorrent.com/track/beta/endpoint/utserver/os/linux-x64-ubuntu-13-04
+      dest: /tmp
+    ignore_errors: yes
+  - name: unpack utserver.tar.gz to /opt/
+    unarchive:
+      src: /tmp/utserver.tar.gz
+      dest: /opt/
+      remote_src: yes
+  - name: symlink /opt/utorrent-server-alpha-v3_3/utserver to /usr/bin/utserver
+    file: 
+      src:  /opt/utorrent-server-alpha-v3_3/utserver
+      dest: /usr/bin/utserver
+      state: link
+  - name: create systemd service for utserver
+    template:
+      src: service_template.j2
+      dest: /etc/systemd/system/utserver.service
+    vars:
+      user: utorrent
+      group: utorrent
+      service_desc: Utorrent Server
+      execstart: /usr/bin/utserver -settingspath /opt/utorrent-server-alpha-v3_3/ &
+      execstop: /usr/bin/pkill utserver
+      syslog_id: utserver
+  - name: enable and start systemd service for utserver
+    systemd: 
+      daemon_reload: yes
+      name: utserver.service
+      enabled: yes
+      state: started

@@ -1,0 +1,13 @@
+movies_dir: /mnt/diskstation/Movies
+tvshows_dir: /mnt/diskstation/TV Shows 
+downloads_dir: /mnt/diskstation/Downloads
+backup_dir: /mnt/diskstation/backups
+sickchill_dir: /opt/sickchill
+jackett_ver: v0.11.259
+jackett_deps:
+  - libicu60 # not available on 19.04
+  - liblttng-ust0
+  - libcurl4
+  - libssl1.0.0
+  - libkrb5-3
+  - libcurl4-openssl-dev

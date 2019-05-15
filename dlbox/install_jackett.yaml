@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  gather_facts: no
+  vars_files: vars.yaml
+  tasks:
+  - name: install jackett dependencies
+    apt:
+      name: "{{ jackett_deps }}"
+      state: present
+    ignore_errors: yes
+  - name: add jackett group
+    group:
+      name: jackett
+      system: yes
+  - name: add jackett user
+    user: 
+      name: jackett
+      group: jackett
+      append: yes
+      system: yes
+      create_home: no
+  - name: download jackett tar
+    get_url: 
+      url: https://github.com/Jackett/Jackett/releases/download/{{ jackett_ver }}/Jackett.Binaries.LinuxAMDx64.tar.gz
+      dest: /tmp
+    ignore_errors: yes
+  - name: unpack Jackett.Binaries.LinuxAMDx64.tar.gz to /opt/
+    unarchive:
+      src: /tmp/Jackett.Binaries.LinuxAMDx64.tar.gz
+      dest: /opt/
+      remote_src: yes
+  - name: chown /opt/Jackett to jackett:jackett
+    file:
+      path: /opt/Jackett
+      group: jackett
+      owner: jackett
+      recurse: yes
+    
+  - name: create systemd service for jackett
+    template:
+      src: service_template.j2
+      dest: /etc/systemd/system/jackett.service
+    vars:
+      user: jackett
+      group: jackett
+      service_desc: Jackett Daemon
+      execstart: /opt/Jackett/jackett --NoRestart
+      execstop: /usr/bin/pkill /opt/jackett/jackett
+      syslog_id: jackett
+  - name: enable and start systemd service for jackett
+    systemd: 
+      daemon_reload: yes
+      name: jackett.service
+      enabled: yes
+      state: started
+      
+    
+
+
+
+
+
+
+
+
+
+    

@@ -1,0 +1,28 @@
+--- 
+- hosts: localhost
+  connection: local
+  become: yes
+  vars_files: vars.yaml
+  tasks:
+  - name: create diskstation mount points at /mnt/
+    file:
+      path: "{{ item.path }}"
+      state: directory
+    with_items:
+      - { path: '{{ movies_dir }}' }
+      - { path: '{{ tvshows_dir }}' }
+      - { path: '{{ downloads_dir }}' }
+      - { path: '{{ backup_dir }}' }
+  - name: mount diskstation nfs shares
+    mount:
+      path: "{{ item.path }}"
+      src: "{{ item.src }}"
+      state: present
+      fstype: nfs
+      opts: rw
+      backup: yes
+    with_items:
+      - { path: '{{ movies_dir }}', src: '/172.16.20.7/volume1/Movies' }
+      - { path: '{{ tvshows_dir }}', src: '/172.16.20.7/volume1/TV Shows' }
+      - { path: '{{ downloads_dir }}', src: '/172.16.20.7/volume1/Downloads' }
+      - { path: '{{ backup_dir }}', src: '/172.16.20.7/volume1/Backups' }

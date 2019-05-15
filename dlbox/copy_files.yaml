@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  vars_files: vars.yaml
+  tasks:
+  - name:  restore sickchill backup
+    copy:
+      src: "{{ backup_dir }}/sickchill/config.conf"
+      dest: "{{ sickchill_dir }}"
+      remote_src: yes
